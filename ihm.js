@@ -13,26 +13,33 @@ module.exports.start = function() {
         console.log('[init]', nb, 'sessions trouvées.')
     });
 
-    afficherMenu('*************************\n\t'+
+    afficherMenu('*************** BreizhCamp 2018 **************\n\t'+
     '1. Rafraichir les données\n\t'+
     '2. Lister les sessions\n\t'+
-    '99. Quitter\n', saisie =>
-    {
+    '3. Lister les présentateurs\n\t'+
+    '99. Quitter\n', function(saisie) {
         switch(saisie)
         {
             case "1":
-                service.init(function(nb) {
+                service.init(nb => {
                     console.log('[maj]', nb, 'sessions trouvées.')
                 });
                 console.log("...Données mises à jour.");
                 break;
             case "2":
-                service.listerSessions(function(sessions) {
+                service.listerSessions(sessions => {
                     sessions.forEach(session => { console.log(session.name, "("+session.speakers+")")});
                 });
+                console.log("...Données sessions listées.");
+                break;
+            case "3":
+                service.listerPresentateurs(speakers => { 
+                    speakers.forEach(speaker => console.log(speaker));
+                });
+                console.log("...Données présentateurs listées.");
                 break;
             case "99":
-                console.log("...fin du programme.");
+                console.log("...Fin du programme.");
                 return false;
             default:
                 console.log(`Option : ${saisie}, non possible !`);
@@ -44,7 +51,7 @@ module.exports.start = function() {
 
 function afficherMenu(texte, callback)
 {
-    rl.question(texte, saisie => {
+    rl.question(texte, function(saisie) {
 
         //Use callback to do menu loop
         if(callback(saisie)!== false)

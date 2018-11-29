@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/NicolasSCHAUSS/bzh-2018#readme",
   "dependencies": {
+    "jsdom": "^13.0.0",
     "request": "^2.88.0"
   }
 }

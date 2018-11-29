@@ -1,4 +1,5 @@
 var request = require('request');
+var jsdom = require('jsdom');
 // tableau qui contiendra toutes les sessions du BreizhCamp
 var talks = [];
 
@@ -46,4 +47,16 @@ module.exports.init = function (callback) {
 
 module.exports.listerSessions = function(callback) {
     callback(talks);
+}
+
+module.exports.listerPresentateurs = function(callback) {
+    speakers = [];
+    request('http://2018.breizhcamp.org/conference/speakers/', {}, (err, res, body) => {
+        if (err) { return console.log('Erreur', err); }
+        
+        var dom = new jsdom.JSDOM(body);
+        var langs = dom.window.document.querySelectorAll(".media-heading");
+        langs.forEach(lg => speakers.push(lg.innerHTML));
+        callback(speakers);
+    });
 }
