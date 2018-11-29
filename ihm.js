@@ -14,11 +14,11 @@ module.exports.start = () => {
         console.log(`[init] ${nb} sessions trouvées.`)
     });
 
-    afficherMenu('*************** BreizhCamp 2018 **************\n\t'+
-    '1. Rafraichir les données\n\t'+
-    '2. Lister les sessions\n\t'+
-    '3. Lister les présentateurs\n\t'+
-    '99. Quitter\n', saisie => {
+    afficherMenu(`*************** BreizhCamp 2018 **************
+    1. Rafraichir les données
+    2. Lister les sessions
+    3. Lister les présentateurs
+    99. Quitter\n`, saisie => {
         switch(saisie)
         {
             case "1":
