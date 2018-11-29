@@ -1,34 +1,33 @@
-var readline = require('readline');
-var service = require('./service')
+const readline = require('readline');
+const Service = require('./service');
 
-var rl = readline.createInterface({
+const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
-module.exports.start = function() {
-
+module.exports.start = () => {
+    
     //Initialisation des données
+    const service = new Service();
     service.init(function(nb) {
-        console.log('[init]', nb, 'sessions trouvées.')
+        console.log(`[init] ${nb} sessions trouvées.`)
     });
 
     afficherMenu('*************** BreizhCamp 2018 **************\n\t'+
     '1. Rafraichir les données\n\t'+
     '2. Lister les sessions\n\t'+
     '3. Lister les présentateurs\n\t'+
-    '99. Quitter\n', function(saisie) {
+    '99. Quitter\n', saisie => {
         switch(saisie)
         {
             case "1":
-                service.init(nb => {
-                    console.log('[maj]', nb, 'sessions trouvées.')
-                });
+                service.init(nb => console.log(`[maj] ${nb}, sessions trouvées.`));
                 console.log("...Données mises à jour.");
                 break;
             case "2":
                 service.listerSessions(sessions => {
-                    sessions.forEach(session => { console.log(session.name, "("+session.speakers+")")});
+                    sessions.forEach(session => console.log(`${session.name} "(${session.speakers})"`));
                 });
                 console.log("...Données sessions listées.");
                 break;
@@ -51,7 +50,7 @@ module.exports.start = function() {
 
 function afficherMenu(texte, callback)
 {
-    rl.question(texte, function(saisie) {
+    rl.question(texte, saisie => {
 
         //Use callback to do menu loop
         if(callback(saisie)!== false)
