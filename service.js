@@ -1,9 +1,9 @@
-const request = require('request');
+const request = require('request-promise-native');
 const jsdom = require('jsdom');
 
 class Talks
 {
-    constructor (e)
+    constructor(e)
     {
         this.description = e.description;
         this.event_end = e.event_end;
@@ -29,43 +29,60 @@ module.exports = class Service {
         this.speakers = [];
     }
 
-    init(callback) {
+    init() {
         //RAZ talks data
         this.talks = [];
-        // effectuer les requêtes HTTP permettant de récupérer les données du BreizhCamp
-        // Envoie de la requête http
-        request('http://2018.breizhcamp.org/json/talks.json',{ json: true }, (err,res,body) => {
-            if (!err)
-            {
-                // => une fois les données récupérées, alimenter la variable talks
-                body.forEach(e => this.talks.push(new Talks(e)));
+        // Requêtes HTTP permettant de récupérer les données du BreizhCamp
+        return new Promise((resolve, reject) => {
+            // Envoie de la requête http
+            request('http://2018.breizhcamp.org/json/others.json',{ json: true }, (err,res,body) =>{
+                if (!err) {
+                    body.forEach(e => this.talks.push(new Talks(e)));
 
-                request('http://2018.breizhcamp.org/json/others.json',{ json: true }, (err,res,body) =>{
-                    if (!err)
-                    {
-                        // => re-alimenter la variable talks
-                        body.forEach(e => this.talks.push(new Talks(e)));
-                        // => invoquer la callback avec le nombre de sessions récupérées
-                        callback(this.talks.length);
-                    }
-                });
+                    request('http://2018.breizhcamp.org/json/talks.json',{ json: true }, (err,res,body) => {
+                            
+                            if (!err) {
+                                body.forEach(e => this.talks.push(new Talks(e)));
+                                resolve(this.talks.length);
+                            }
+                            else {
+                                reject('Erreur', err);
+                            }
+                    });
+                }
+                else {
+                    reject('Erreur', err);
+                }
+            });
+        });
+    }
+
+    listerSessions() {
+        return new Promise((resolve, reject) => {
+            if(this.talks != 0) {
+                resolve(this.talks);
+            }
+            else {
+                reject("Sessions data empty !");
             }
         });
     }
 
-    listerSessions(callback) {
-        callback(this.talks);
-    }
-
-    listerPresentateurs(callback) {
+    listerPresentateurs() {
         this.speakers = [];
-        request('http://2018.breizhcamp.org/conference/speakers/', {}, (err, res, body) => {
-            if (err) { return console.log('Erreur', err); }
+        return new Promise ((resolve, reject) => {
+            request('http://2018.breizhcamp.org/conference/speakers/', {}, (err, res, body) => {
+                if(!err) {
+                    const dom = new jsdom.JSDOM(body);
+                    const langs = dom.window.document.querySelectorAll(".media-heading");
+                    langs.forEach(lg => this.speakers.push(lg.innerHTML));
+                    resolve(this.speakers);
+                }
+                else {
+                    reject('Erreur', err);
+                }           
             
-            const dom = new jsdom.JSDOM(body);
-            const langs = dom.window.document.querySelectorAll(".media-heading");
-            langs.forEach(lg => this.speakers.push(lg.innerHTML));
-            callback(this.speakers);
+            });
         });
     }
 }
